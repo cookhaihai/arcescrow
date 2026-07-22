@@ -637,3 +637,123 @@ button {
     animation: none !important;
   }
 }
+
+/* ---------- 领水指引 ---------- */
+.faucet {
+  background: var(--slip);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--lock);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 24px;
+}
+
+.faucet-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.faucet-head h2 {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
+  text-transform: none;
+}
+
+.faucet-head p {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+
+.faucet-close {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.faucet-close:hover {
+  color: var(--ink);
+}
+
+.faucet-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+}
+
+.faucet-steps li {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+}
+
+.faucet-num {
+  flex: none;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: var(--lock);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.faucet-steps strong {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.faucet-steps p {
+  margin: 0 0 9px;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.faucet-btn {
+  display: inline-block;
+  width: auto;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  text-decoration: none;
+  text-align: center;
+}
+
+.faucet-slim {
+  margin-bottom: 18px;
+  text-align: right;
+}
+
+.faucet-link {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 0;
+}
+
+.faucet-link:hover {
+  color: var(--lock);
+}

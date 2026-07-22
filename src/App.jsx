@@ -246,6 +246,30 @@ export default function App() {
     .filter((e) => e.status === 0)
     .reduce((sum, e) => sum + e.amount, 0n);
 
+  // 余额太少就把领水指引顶到显眼处;够用时收成一行小字
+  const lowBalance = balance !== null && balance < parseEther("0.5");
+
+  // 一键把 Arc 测试网加进钱包(钱包里没有这条网络时有用)
+  const addArcNetwork = useCallback(async () => {
+    if (!window.ethereum) return;
+    try {
+      await window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [
+          {
+            chainId: ARC_TESTNET.chainIdHex,
+            chainName: ARC_TESTNET.chainName,
+            nativeCurrency: ARC_TESTNET.nativeCurrency,
+            rpcUrls: ARC_TESTNET.rpcUrls,
+            blockExplorerUrls: ARC_TESTNET.blockExplorerUrls,
+          },
+        ],
+      });
+    } catch (e) {
+      setErr(readableError(e));
+    }
+  }, []);
+
   return (
     <div className="wrap">
       <header className="topbar">
@@ -307,6 +331,12 @@ export default function App() {
           </div>
         </div>
       </section>
+
+      <Faucet
+        connected={!!account && chainOk}
+        lowBalance={lowBalance}
+        onAddNetwork={addArcNetwork}
+      />
 
       {err && (
         <div className="note note-err" role="alert">
@@ -439,6 +469,77 @@ export default function App() {
         </a>
       </footer>
     </div>
+  );
+}
+
+function Faucet({ connected, lowBalance, onAddNetwork }) {
+  // 没连钱包、或余额偏低时展开;否则收成一行不占地方
+  const [open, setOpen] = useState(false);
+  const expanded = open || lowBalance || !connected;
+
+  if (!expanded) {
+    return (
+      <div className="faucet-slim">
+        <button className="faucet-link" onClick={() => setOpen(true)}>
+          Need testnet USDC?
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <section className="faucet">
+      <div className="faucet-head">
+        <div>
+          <h2>Need testnet USDC?</h2>
+          <p>
+            {lowBalance && connected
+              ? "Your balance is running low. Top up from Circle's faucet — it's free."
+              : "Arc runs on testnet USDC. Grab some free — it takes about a minute."}
+          </p>
+        </div>
+        {!lowBalance && connected && (
+          <button className="faucet-close" onClick={() => setOpen(false)} title="Hide">
+            ×
+          </button>
+        )}
+      </div>
+
+      <ol className="faucet-steps">
+        <li>
+          <span className="faucet-num">1</span>
+          <div>
+            <strong>Add Arc Testnet to your wallet</strong>
+            <p>Chain 5042002 · USDC is the native gas token.</p>
+            <button className="btn btn-ghost faucet-btn" onClick={onAddNetwork}>
+              Add network
+            </button>
+          </div>
+        </li>
+        <li>
+          <span className="faucet-num">2</span>
+          <div>
+            <strong>Claim free USDC</strong>
+            <p>Circle's official faucet. Pick Arc Testnet, paste your address.</p>
+            <a
+              className="btn faucet-btn"
+              href="https://faucet.circle.com/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open Circle faucet →
+            </a>
+          </div>
+        </li>
+        <li>
+          <span className="faucet-num">3</span>
+          <div>
+            <strong>Come back and lock a payment</strong>
+            <p>The faucet tops you up every couple of hours if you need more.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
   );
 }
 
