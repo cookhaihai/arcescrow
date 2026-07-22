@@ -79,14 +79,24 @@ const readProvider = new JsonRpcProvider(
 );
 
 // 把 wagmi 的连接客户端转成 ethers 的 signer,这样合约写操作继续用 ethers。
+// 某些钱包注入的 transport 结构不标准(会抛 "invalid border" 之类的错),
+// 这里必须兜住:签名器拿不到就返回 null,页面照常渲染,而不是整页崩掉。
 function useEthersSigner() {
   const { data: client } = useConnectorClient();
   return useMemo(() => {
     if (!client) return null;
-    const { account, chain, transport } = client;
-    const network = { chainId: chain.id, name: chain.name };
-    const provider = new BrowserProvider(transport, network);
-    return new JsonRpcSigner(provider, account.address);
+    try {
+      const { account, chain, transport } = client;
+      if (!account?.address || !chain?.id || !transport) return null;
+      const provider = new BrowserProvider(transport, {
+        chainId: chain.id,
+        name: chain.name ?? "unknown",
+      });
+      return new JsonRpcSigner(provider, account.address);
+    } catch (err) {
+      console.error("Could not build signer from this wallet:", err);
+      return null;
+    }
   }, [client]);
 }
 
@@ -337,6 +347,13 @@ export default function App() {
         lowBalance={lowBalance}
         onAddNetwork={addArcNetwork}
       />
+
+      {account && chainOk && !signer && (
+        <div className="note note-err">
+          This wallet connected, but the page can't build a signer from it — you'll be able
+          to browse, but not sign transactions. Try reconnecting with MetaMask.
+        </div>
+      )}
 
       {err && (
         <div className="note note-err" role="alert">
